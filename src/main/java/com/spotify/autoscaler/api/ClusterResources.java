@@ -30,23 +30,22 @@ import com.spotify.autoscaler.db.BigtableClusterBuilder;
 import com.spotify.autoscaler.db.Database;
 import com.spotify.autoscaler.util.BigtableUtil;
 import io.norberg.automatter.jackson.AutoMatterModule;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.Optional;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Support two different paths for the moment while switching from instances->clusters
-@Path("/{ignored:instances|clusters}")
+@Path("/clusters")
 @Produces(MediaType.APPLICATION_JSON)
 public class ClusterResources {
 
@@ -72,6 +71,7 @@ public class ClusterResources {
 
   @GET
   @Path("logs")
+  @Operation
   public Response getLogs(@QueryParam("projectId") String projectId,
                           @QueryParam("instanceId") String instanceId,
                           @QueryParam("clusterId") String clusterId) {

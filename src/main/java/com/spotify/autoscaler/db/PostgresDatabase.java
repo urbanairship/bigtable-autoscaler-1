@@ -74,7 +74,15 @@ public class PostgresDatabase implements Database {
 
   private void registerMetricActiveConnections(SemanticMetricRegistry registry) {
     registry.register(APP_PREFIX.tagged("what", "open-db-connections"),
-        (Gauge<Integer>) () -> this.dataSource.getHikariPoolMXBean().getTotalConnections());
+        (Gauge<Integer>) () -> this.getTotalConnections());
+  }
+
+  private int getTotalConnections() {
+    try {
+      return dataSource.getHikariPoolMXBean().getTotalConnections();
+    } catch (NullPointerException e) {
+      return 0;
+    }
   }
 
   private HikariDataSource dataSource(Config config) {

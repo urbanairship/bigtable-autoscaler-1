@@ -42,8 +42,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.grizzly2.servlet.GrizzlyWebContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -99,10 +100,14 @@ public final class Main {
 
     int port = config.getConfig("http").getConfig("server").getInt("port");
     db = new PostgresDatabase(config.getConfig("database"), registry);
-    URI uri = new URI("http://0.0.0.0:" + port);
+    URI uri = new URI("http://0.0.0.0:" + port + "/");
     ResourceConfig resourceConfig =
         new AutoscaleResourceConfig(SERVICE_NAME, config, new ClusterResources(db), new HealthCheck(db));
-    server = GrizzlyHttpServerFactory.createHttpServer(uri, resourceConfig, false);
+
+    // server = GrizzlyHttpServerFactory.createHttpServer(uri, resourceConfig, false);
+    resourceConfig.packages("com.spotify.autoscaler.api");
+    final ServletContainer sc = new ServletContainer(resourceConfig);
+    server = GrizzlyWebContainerFactory.create(uri, sc, null, null);
 
     autoscaler = new Autoscaler(
         registry,
